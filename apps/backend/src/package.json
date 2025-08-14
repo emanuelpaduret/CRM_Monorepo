@@ -2,16 +2,15 @@
   "name": "@crm/backend",
   "version": "1.0.0",
   "description": "CRM Backend API",
-  "main": "src/app.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js",
-    "create-users": "node src/createUsers.js"
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "create-users": "node createUsers.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
