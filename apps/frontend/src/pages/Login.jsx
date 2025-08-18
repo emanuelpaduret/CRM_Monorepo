@@ -70,7 +70,17 @@ function Login({ onLogin }) {
       }}
     >
       <Container component="main" maxWidth="xs">
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box
+          sx={{
+            p: 4,
+            backgroundColor: '#0d1117',
+            borderRadius: 2,
+            border: '1px solid #2f3b52',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -78,62 +88,69 @@ function Login({ onLogin }) {
             Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            InputLabelProps={{ sx: { color: '#e0e0e0' } }}
-            InputProps={{ sx: { color: '#e0e0e0' } }}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            InputLabelProps={{ sx: { color: '#e0e0e0' } }}
-            InputProps={{ sx: { color: '#e0e0e0' } }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                sx={{ color: '#e0e0e0', '&.Mui-checked': { color: '#e0e0e0' } }}
-              />
-            }
-            label="Remember me"
-            sx={{ color: '#e0e0e0' }}
-          />
+            <TextField
+              margin="normal"
+              required
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              InputLabelProps={{ sx: { color: '#e0e0e0' } }}
+              InputProps={{ sx: { color: '#e0e0e0' } }}
+              sx={{ width: '80%', mx: 'auto' }}
+            />
+            <TextField
+              margin="normal"
+              required
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              InputLabelProps={{ sx: { color: '#e0e0e0' } }}
+              InputProps={{ sx: { color: '#e0e0e0' } }}
+              sx={{ width: '80%', mx: 'auto' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  sx={{ color: '#e0e0e0', '&.Mui-checked': { color: '#e0e0e0' } }}
+                />
+              }
+              label="Remember me"
+              sx={{ color: '#e0e0e0', width: '80%', mx: 'auto' }}
+            />
           {error && (
             <Typography color="error" variant="body2" sx={{ mt: 1 }}>
               {error}
             </Typography>
           )}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Sign In
-          </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 2,
+                width: '80%',
+                mx: 'auto',
+                backgroundColor: '#ffffff',
+                color: '#1b263b',
+                '&:hover': { backgroundColor: '#f0f0f0' },
+              }}
+            >
+              Sign In
+            </Button>
+          </Box>
         </Box>
-      </Box>
-    </Container>
-  </Box>
+      </Container>
+    </Box>
   );
 }
 
