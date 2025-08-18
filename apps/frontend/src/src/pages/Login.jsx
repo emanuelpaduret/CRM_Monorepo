@@ -1,4 +1,3 @@
-+77-28
 import { useState } from 'react';
 import {
   Avatar,
@@ -33,6 +32,7 @@ function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [remember, setRemember] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,8 +40,9 @@ function Login({ onLogin }) {
     try {
       const { data } = await auth.login(email, password);
       const { token, user } = data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      const storage = remember ? localStorage : sessionStorage;
+      storage.setItem('token', token);
+      storage.setItem('user', JSON.stringify(user));
       onLogin(user);
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
@@ -50,19 +51,24 @@ function Login({ onLogin }) {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+    <Container
+      component="main"
+      maxWidth="xs"
+      sx={{
+        minHeight: '100vh',
+        background:
+          'radial-gradient(circle at center, #0d1117 0%, #1b263b 100%)',
+        color: '#e0e0e0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" sx={{ color: '#e0e0e0' }}>
           Sign in
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -77,6 +83,8 @@ function Login({ onLogin }) {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            InputLabelProps={{ sx: { color: '#e0e0e0' } }}
+            InputProps={{ sx: { color: '#e0e0e0' } }}
           />
           <TextField
             margin="normal"
@@ -89,10 +97,19 @@ function Login({ onLogin }) {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            InputLabelProps={{ sx: { color: '#e0e0e0' } }}
+            InputProps={{ sx: { color: '#e0e0e0' } }}
           />
           <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
+            control={
+              <Checkbox
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                sx={{ color: '#e0e0e0', '&.Mui-checked': { color: '#e0e0e0' } }}
+              />
+            }
             label="Remember me"
+            sx={{ color: '#e0e0e0' }}
           />
           {error && (
             <Typography color="error" variant="body2" sx={{ mt: 1 }}>
