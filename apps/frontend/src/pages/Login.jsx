@@ -10,15 +10,16 @@ import {
   Typography,
   SvgIcon,
 } from '@mui/material';
-import { auth } from '../services/api';
+import { auth, setTempToken } from '../services/api';
 
 /**
  * Login page component.
  *
  * Renders a simple login form that posts credentials to the backend. On a
  * successful response the authentication token and user information are stored
- * in localStorage and the parent callback is notified so the rest of the app
- * can update accordingly.
+ * in localStorage only when the user opts to be remembered; otherwise the token
+ * is kept in memory for the session and cleared on logout. The parent callback
+ * is notified so the rest of the app can update accordingly.
  */
 function LockOutlinedIcon(props) {
   return (
@@ -40,9 +41,15 @@ function Login({ onLogin }) {
     try {
       const { data } = await auth.login(email, password);
       const { token, user } = data;
-      const storage = remember ? localStorage : sessionStorage;
-      storage.setItem('token', token);
-      storage.setItem('user', JSON.stringify(user));
+      if (remember) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        setTempToken(null);
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setTempToken(token);
+      }
       onLogin(user);
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
@@ -51,9 +58,7 @@ function Login({ onLogin }) {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
+    <Box
       sx={{
         minHeight: '100vh',
         background:
@@ -64,14 +69,15 @@ function Login({ onLogin }) {
         justifyContent: 'center',
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5" sx={{ color: '#e0e0e0' }}>
-          Sign in
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+      <Container component="main" maxWidth="xs">
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" sx={{ color: '#e0e0e0' }}>
+            Sign in
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -127,6 +133,7 @@ function Login({ onLogin }) {
         </Box>
       </Box>
     </Container>
+  </Box>
   );
 }
 

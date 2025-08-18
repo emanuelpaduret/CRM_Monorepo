@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+// Temporary token for non-persistent sessions
+let tempToken = null;
+
+export const setTempToken = (token) => {
+  tempToken = token;
+};
+
 // Create axios instance with base configuration
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://alex-backend-te4o.onrender.com',
@@ -11,7 +18,7 @@ const API = axios.create({
 // Add token to requests if it exists
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || tempToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,6 +37,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      tempToken = null;
       window.location.href = '/';
     }
     return Promise.reject(error);

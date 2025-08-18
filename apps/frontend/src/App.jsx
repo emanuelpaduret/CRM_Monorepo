@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Login from './pages/Login';
+import { setTempToken } from './services/api';
 
 // Create MUI theme
 const theme = createTheme({
@@ -41,9 +42,10 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTempToken(null);
+      setUser(null);
   };
 
   if (loading) {
