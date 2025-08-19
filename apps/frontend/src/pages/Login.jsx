@@ -62,7 +62,8 @@ function Login({ onLogin }) {
       sx={{
         minHeight: '100vh',
         background:
-          'radial-gradient(circle at center, #0d1117 0%, #1b263b 100%)',
+          'radial-gradient(circle at center, #182e59ff 0%, #0d1117 100%), rgba(0,0,0,0.4)',
+        backgroundBlendMode: 'multiply',
         color: '#e0e0e0',
         display: 'flex',
         alignItems: 'center',
@@ -87,10 +88,11 @@ function Login({ onLogin }) {
           <Typography component="h1" variant="h5" sx={{ color: '#e0e0e0' }}>
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
             <TextField
               margin="normal"
               required
+              fullWidth
               id="email"
               label="Email Address"
               name="email"
@@ -98,13 +100,22 @@ function Login({ onLogin }) {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              variant="filled"
               InputLabelProps={{ sx: { color: '#e0e0e0' } }}
-              InputProps={{ sx: { color: '#e0e0e0' } }}
-              sx={{ width: '80%', mx: 'auto' }}
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  color: '#e0e0e0',
+                  backgroundColor: '#06090f',
+                  borderRadius: 1,
+                },
+              }}
+              sx={{ mx: 'auto' }}
             />
             <TextField
               margin="normal"
               required
+              fullWidth
               name="password"
               label="Password"
               type="password"
@@ -112,9 +123,17 @@ function Login({ onLogin }) {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              variant="filled"
               InputLabelProps={{ sx: { color: '#e0e0e0' } }}
-              InputProps={{ sx: { color: '#e0e0e0' } }}
-              sx={{ width: '80%', mx: 'auto' }}
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  color: '#e0e0e0',
+                  backgroundColor: '#06090f',
+                  borderRadius: 1,
+                },
+              }}
+              sx={{ mx: 'auto' }}
             />
             <FormControlLabel
               control={
@@ -125,7 +144,7 @@ function Login({ onLogin }) {
                 />
               }
               label="Remember me"
-              sx={{ color: '#e0e0e0', width: '80%', mx: 'auto' }}
+              sx={{ color: '#e0e0e0', width: '100%', mx: 'auto' }}
             />
           {error && (
             <Typography color="error" variant="body2" sx={{ mt: 1 }}>
@@ -138,7 +157,7 @@ function Login({ onLogin }) {
               sx={{
                 mt: 3,
                 mb: 2,
-                width: '80%',
+                width: '100%',
                 mx: 'auto',
                 backgroundColor: '#ffffff',
                 color: '#1b263b',
