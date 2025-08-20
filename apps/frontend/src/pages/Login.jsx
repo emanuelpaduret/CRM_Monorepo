@@ -193,8 +193,8 @@ function Login({ onLogin }) {
             <Stack spacing={4}>
 
 
-          <Typography level="h2" sx={{ color: '#e0e0e0', alignSelf: 'flex-start', fontWeight: 'bold' }}>
-            Sign in
+          <Typography level="h1" sx={{ color: '#e0e0e0', alignSelf: 'flex-start', fontWeight: 'bold' }}>
+            Welcome
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ width: '100%' }}>
             <Stack spacing={3}>
@@ -254,6 +254,7 @@ function Login({ onLogin }) {
                  sx={{
                    color: '#e0e0e0',
                    alignSelf: 'flex-start',
+                   fontWeight: 'bold',
                   
                   '& .MuiCheckbox-checkbox': {
                     backgroundColor: ' #06090f',
