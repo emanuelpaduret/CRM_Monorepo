@@ -232,8 +232,8 @@ function Login({ onLogin }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   sx={{
-                    backgroundColor: '#06090f',
-                    color: '#e0e0e0',
+                    backgroundColor: ' #06090f',
+                    color: ' #e0e0e0',
                     borderColor: '#2f3b52',
                     height: '40px',
                     '&:hover': {
@@ -245,15 +245,36 @@ function Login({ onLogin }) {
                   }}
                 />
               </FormControl>
-              <Checkbox
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                label="Remember me"
-                sx={{
-                  color: '#e0e0e0',
-                  alignSelf: 'flex-start',
-                }}
-              />
+                <Checkbox
+                 checked={remember}
+                 onChange={(e) => setRemember(e.target.checked)}
+                 label="Remember me"
+                 size="sm"
+                 variant="outlined"
+                 sx={{
+                   color: '#e0e0e0',
+                   alignSelf: 'flex-start',
+                  
+                  '& .MuiCheckbox-checkbox': {
+                    backgroundColor: ' #06090f',
+                    borderColor: ' #2f3b52',
+                    '&:hover': {
+                      backgroundColor: ' #06090f',
+                      borderColor: ' #4a5568',
+                    },
+                  },
+                    '&.Mui-checked .MuiCheckbox-checkbox': {
+                     backgroundColor: ' #106ccc',
+                     borderColor: ' #106ccc',
+                   },
+                   '& .MuiSvgIcon-root': {
+                     color: '#ffffff',
+                   },
+                   '&.Mui-checked .MuiSvgIcon-root': {
+                     color: '#ffffff',
+                   },
+                 }}
+               />
               {error && (
                 <Typography level="body-sm" color="danger" sx={{ mt: 1 }}>
                   {error}
@@ -264,8 +285,8 @@ function Login({ onLogin }) {
                 variant="solid"
                 sx={{
                   width: '100%',
-                  backgroundColor: '#ffffff',
-                  color: '#1b263b',
+                  backgroundColor: '#106ccc',
+                  color: '#ffffff',
                   fontWeight: 'bold',
                   textTransform: 'none',
                   transition: 'all 0.2s ease-in-out',
