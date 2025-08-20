@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
+import { CssBaseline, GlobalStyles } from '@mui/joy';
 import Login from './pages/Login';
 import { setTempToken } from './services/api';
 
-// Create MUI theme
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
+// Create Joy UI theme
+const theme = extendTheme({
+  fontFamily: {
+    body: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
   },
 });
 
@@ -53,7 +59,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <CssVarsProvider theme={theme}>
       <CssBaseline />
       {!user ? (
         <Login onLogin={handleLogin} />
@@ -64,7 +70,7 @@ function App() {
           <button onClick={handleLogout}>Logout</button>
         </div>
       )}
-    </ThemeProvider>
+    </CssVarsProvider>
   );
 }
 
