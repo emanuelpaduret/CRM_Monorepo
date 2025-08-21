@@ -9,7 +9,7 @@ export const setTempToken = (token) => {
 
 // Create axios instance with base configuration
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://alex-backend-te4o.onrender.com',
+  baseURL: import.meta.env.VITE_API_URL || 'https://crm-3ems.onrender.com/',
   headers: {
     'Content-Type': 'application/json'
   }

@@ -9,7 +9,10 @@ import {
   Typography,
   Stack,
   Sheet,
+  IconButton,
 } from '@mui/joy';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { auth, setTempToken } from '../services/api';
 
 /**
@@ -72,6 +75,25 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [remember, setRemember] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Load theme preference from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme !== null) {
+      setIsDarkMode(savedTheme === 'dark');
+    }
+  }, []);
+
+  // Save theme preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   // Select random space image on component mount
   useEffect(() => {
@@ -124,19 +146,59 @@ function Login({ onLogin }) {
         minHeight: '100vh',
         display: 'flex',
         width: '100%',
+        backgroundColor: isDarkMode ? 'rgb(0, 0, 0)' : 'rgb(248, 250, 252)',
+        transition: 'background-color 0.3s ease',
       }}
     >
       {/* Left side - Login form */}
       <Box
         sx={{
           flex: 1,
-          backgroundColor: 'rgb(9, 9, 11)',
+          backgroundColor: isDarkMode ? 'rgb(9, 9, 11)' : 'rgb(255, 255, 255)',
           backdropFilter: 'blur(12px)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
+          transition: 'background-color 0.3s ease',
         }}
       >
+        {/* Dark mode toggle - positioned at top right */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 24,
+            right: 24,
+            zIndex: 10,
+          }}
+        >
+          <Box
+            onClick={toggleTheme}
+            sx={{
+              width: 32,
+              height: 32,
+              backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(248, 250, 252)',
+              borderRadius: 5,
+              border: `1px solid ${isDarkMode ? '#333' : '#e2e8f0'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isDarkMode ? '#ffffff' : '#1a202c',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'background-color 0.3s ease, border-color 0.3s ease',
+              '&:hover': {
+                backgroundColor: isDarkMode ? '#5a6a7a' : '#e2e8f0',
+              },
+            }}
+          >
+            {isDarkMode ? (
+              <LightModeIcon sx={{ fontSize: 18, color: '#ffffff' }} />
+            ) : (
+              <DarkModeIcon sx={{ fontSize: 18, color: '#1a202c' }} />
+            )}
+          </Box>
+        </Box>
+
         {/* Company Logo - hidden for now */}
         {/* 
         <Box
@@ -193,13 +255,13 @@ function Login({ onLogin }) {
             <Stack spacing={4}>
 
 
-          <Typography level="h1" sx={{ color: '#e0e0e0', alignSelf: 'flex-start', fontWeight: 'bold' }}>
+          <Typography level="h1" sx={{ color: isDarkMode ? '#e0e0e0' : '#1a202c', alignSelf: 'flex-start', fontWeight: 'bold' }}>
             Welcome
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ width: '100%' }}>
             <Stack spacing={3}>
               <FormControl>
-                <FormLabel sx={{ color: '#e0e0e0', mb: 1, fontSize: '14px', fontWeight: 'bold' }}>Email</FormLabel>
+                <FormLabel sx={{ color: isDarkMode ? '#e0e0e0' : '#1a202c', mb: 1, fontSize: '14px', fontWeight: 'bold' }}>Email</FormLabel>
                 <Input
                   id="email"
                   name="email"
@@ -209,38 +271,54 @@ function Login({ onLogin }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   sx={{
-                    backgroundColor: '#06090f',
-                    color: '#e0e0e0',
-                    borderColor: '#2f3b52',
+                    backgroundColor: isDarkMode ? '#06090f' : '#f7fafc',
+                    color: isDarkMode ? '#e0e0e0' : '#1a202c',
+                    borderColor: isDarkMode ? '#2f3b52' : '#e2e8f0',
                     height: '40px',
+                    transition: 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
                     '&:hover': {
-                      borderColor: '#4a5568',
+                      borderColor: isDarkMode ? '#4a5568' : '#cbd5e0',
                     },
                     '&:focus-within': {
-                      borderColor: '#e0e0e0',
+                      borderColor: isDarkMode ? '#e0e0e0' : '#2d3748',
                     },
                   }}
                 />
               </FormControl>
-              <FormControl>
-                <FormLabel sx={{ color: '#e0e0e0', mb: 1, fontSize: '14px', fontWeight: 'bold' }}>Password</FormLabel>
+              <FormControl required>
+                <FormLabel sx={{ color: isDarkMode ? '#e0e0e0' : '#1a202c', mb: 1, fontSize: '14px', fontWeight: 'bold' }}>Password</FormLabel>
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  endDecorator={
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      sx={{
+                        color: isDarkMode ? '#e0e0e0' : '#1a202c',
+                        transition: 'color 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                        },
+                      }}
+                    >
+                      {showPassword ? '🙈' : '👁'}
+                    </IconButton>
+                  }
                   sx={{
-                    backgroundColor: ' #06090f',
-                    color: ' #e0e0e0',
-                    borderColor: '#2f3b52',
+                    backgroundColor: isDarkMode ? '#06090f' : '#f7fafc',
+                    color: isDarkMode ? '#e0e0e0' : '#1a202c',
+                    borderColor: isDarkMode ? '#2f3b52' : '#e2e8f0',
                     height: '40px',
+                    transition: 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
                     '&:hover': {
-                      borderColor: '#4a5568',
+                      borderColor: isDarkMode ? '#4a5568' : '#cbd5e0',
                     },
                     '&:focus-within': {
-                      borderColor: '#e0e0e0',
+                      borderColor: isDarkMode ? '#e0e0e0' : '#2d3748',
                     },
                   }}
                 />
@@ -252,16 +330,18 @@ function Login({ onLogin }) {
                  size="sm"
                  variant="outlined"
                  sx={{
-                   color: '#e0e0e0',
+                   color: isDarkMode ? '#e0e0e0' : '#1a202c',
                    alignSelf: 'flex-start',
                    fontWeight: 'bold',
+                   transition: 'color 0.3s ease',
                   
                   '& .MuiCheckbox-checkbox': {
-                    backgroundColor: ' #06090f',
-                    borderColor: ' #2f3b52',
+                    backgroundColor: isDarkMode ? '#06090f' : '#f7fafc',
+                    borderColor: isDarkMode ? '#2f3b52' : '#e2e8f0',
+                    transition: 'background-color 0.3s ease, border-color 0.3s ease',
                     '&:hover': {
-                      backgroundColor: ' #06090f',
-                      borderColor: ' #4a5568',
+                      backgroundColor: isDarkMode ? '#06090f' : '#f7fafc',
+                      borderColor: isDarkMode ? '#4a5568' : '#cbd5e0',
                     },
                   },
                     '&.Mui-checked .MuiCheckbox-checkbox': {

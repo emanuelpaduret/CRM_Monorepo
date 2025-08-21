@@ -82,7 +82,7 @@ if (!MONGO_URI) {
 if (NODE_ENV === 'production') {
   // Production: Configure CORS for Render deployment
   const allowedOrigins = [
-  'https://alex-frontend.onrender.com',
+  'https://crm-backend-6ngo.onrender.com/',
   'http://localhost:5173',
   'https://demenagementalex.app.n8n.cloud'
   ];

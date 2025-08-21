@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { CssBaseline, GlobalStyles } from '@mui/joy';
 import Login from './pages/Login';
+import Layout from './components/Layout/Layout';
 import { setTempToken } from './services/api';
 
 // Create Joy UI theme
@@ -64,11 +65,11 @@ function App() {
       {!user ? (
         <Login onLogin={handleLogin} />
       ) : (
-        <div>
-          <h1>Welcome {user.name}!</h1>
-          <p>Role: {user.role}</p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
+        <Layout user={user} onLogout={handleLogout}>
+          <div>
+            <p></p>
+          </div>
+        </Layout>
       )}
     </CssVarsProvider>
   );
