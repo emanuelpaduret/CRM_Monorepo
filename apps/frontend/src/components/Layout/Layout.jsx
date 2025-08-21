@@ -45,19 +45,24 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
       backgroundColor: isDarkMode ? 'rgb(0, 0, 0)' : 'rgb(248, 250, 252)',
       transition: 'background-color 0.3s ease'
     }}>
-      {/* Sidebar */}
-      <Box
-        sx={{
-          width: sidebarOpen ? 260 : 0,
-          backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-          borderRight: `1px solid ${isDarkMode ? '#333' : '#e2e8f0'}`,
-          transition: 'width 0.3s ease, background-color 0.3s ease, border-color 0.3s ease',
-          overflow: 'hidden',
-          display: { xs: 'none', md: 'block' },
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+             {/* Sidebar */}
+       <Box
+         sx={{
+           position: 'fixed',
+           top: 0,
+           left: 0,
+           height: '100vh',
+           width: sidebarOpen ? 260 : 0,
+           backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
+           borderRight: `1px solid ${isDarkMode ? '#333' : '#e2e8f0'}`,
+           transition: 'width 0.3s ease, background-color 0.3s ease, border-color 0.3s ease',
+           overflow: 'hidden',
+           display: { xs: 'none', md: 'block' },
+           display: 'flex',
+           flexDirection: 'column',
+           zIndex: 1000,
+         }}
+       >
         {/* Sidebar header */}
         <Box sx={{ pt: 2, pl: 2, pr: 1.5, pb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -413,21 +418,27 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
         </Box>
       </Box>
 
-      {/* Main content area */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Page content */}
-        <Box
-          sx={{
-            flex: 1,
-            p: 3,
-            backgroundColor: isDarkMode ? '#000000' : '#ffffff',
-            transition: 'background-color 0.3s ease',
-            overflow: 'auto',
-          }}
-        >
-          {children}
-        </Box>
-      </Box>
+             {/* Main content area */}
+       <Box sx={{ 
+         flex: 1, 
+         display: 'flex', 
+         flexDirection: 'column',
+         marginLeft: sidebarOpen ? '260px' : 0,
+         transition: 'margin-left 0.3s ease',
+       }}>
+         {/* Page content */}
+         <Box
+           sx={{
+             flex: 1,
+             p: 3,
+             backgroundColor: isDarkMode ? '#000000' : '#ffffff',
+             transition: 'background-color 0.3s ease',
+             overflow: 'auto',
+           }}
+         >
+           {children}
+         </Box>
+       </Box>
     </Box>
   );
 }

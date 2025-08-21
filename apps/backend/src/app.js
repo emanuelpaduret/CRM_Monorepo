@@ -84,7 +84,8 @@ if (NODE_ENV === 'production') {
   const allowedOrigins = [
   'https://crm-backend-6ngo.onrender.com/',
   'http://localhost:5173',
-  'https://demenagementalex.app.n8n.cloud'
+  'https://demenagementalex.app.n8n.cloud',
+  'https://www.mymover.net'
   ];
   
   // Add Render URL if available
