@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { CssBaseline, GlobalStyles } from '@mui/joy';
 import Login from './pages/Login';
+import Home from './pages/Home';
+import Customers from './pages/Customers/Customers';
+import Leads from './pages/Customers/Leads';
+import Booked from './pages/Customers/Booked';
+import Completed from './pages/Customers/Completed';
 import Layout from './components/Layout/Layout';
 import { setTempToken } from './services/api';
 
@@ -26,6 +31,7 @@ const theme = extendTheme({
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Check if user is logged in on mount
   useEffect(() => {
@@ -55,6 +61,10 @@ function App() {
       setUser(null);
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -65,10 +75,12 @@ function App() {
       {!user ? (
         <Login onLogin={handleLogin} />
       ) : (
-        <Layout user={user} onLogout={handleLogout}>
-          <div>
-            <p></p>
-          </div>
+        <Layout user={user} onLogout={handleLogout} onPageChange={handlePageChange} currentPage={currentPage}>
+          {currentPage === 'home' && <Home user={user} />}
+          {currentPage === 'customers' && <Customers user={user} />}
+          {currentPage === 'leads' && <Leads user={user} />}
+          {currentPage === 'booked' && <Booked user={user} />}
+          {currentPage === 'completed' && <Completed user={user} />}
         </Layout>
       )}
     </CssVarsProvider>

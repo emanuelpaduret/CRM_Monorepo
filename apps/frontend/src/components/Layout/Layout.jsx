@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Box, IconButton, Typography, Stack, Avatar } from '@mui/joy';
+import { Box, IconButton, Typography, Stack, Avatar, Input } from '@mui/joy';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import SearchIcon from '@mui/icons-material/Search';
+import HomeIcon from '@mui/icons-material/Home';
+import PeopleIcon from '@mui/icons-material/People';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 // Layout component that provides the main structure for authenticated pages
-function Layout({ children, user, onLogout }) {
+function Layout({ children, user, onLogout, onPageChange, currentPage }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [customersExpanded, setCustomersExpanded] = useState(false);
 
   // Load theme preference from localStorage on mount
   useEffect(() => {
@@ -105,11 +112,218 @@ function Layout({ children, user, onLogout }) {
               )}
             </Box>
           </Box>
+
+          {/* Search input field */}
+          <Box sx={{ mt: 2 }}>
+            <Input
+              placeholder="Search"
+              size="sm"
+              startDecorator={<SearchIcon sx={{ color: isDarkMode ? '#9ca3af' : '#6b7280', fontSize: 18 }} />}
+              sx={{
+                backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(249, 250, 251)',
+                borderColor: isDarkMode ? '#333' : '#d1d5db',
+                color: isDarkMode ? '#e5e7eb' : '#1f2937',
+                borderRadius: 8,
+                height: '36px',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease',
+                '&:hover': {
+                  borderColor: isDarkMode ? '#6b7280' : '#9ca3af',
+                },
+                '&:focus-within': {
+                  borderColor: isDarkMode ? '#3b82f6' : '#2563eb',
+                },
+                '& .MuiInput-placeholder': {
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  transition: 'color 0.3s ease',
+                },
+              }}
+            />
+          </Box>
         </Box>
 
         {/* Sidebar content will go here */}
-        <Box sx={{ flex: 1, p: 3 }}>
-          {/* Navigation menu will go here */}
+        <Box sx={{ flex: 1, pt: 0, px: 0, pb: 3 }}>
+          {/* Navigation menu */}
+          <Box sx={{ px: 2 }}>
+            <Box>
+                             {/* Home */}
+               <Box
+                 onClick={() => onPageChange('home')}
+                 sx={{
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: 1.2,
+                   p: 0.75,
+                   borderRadius: 5,
+                   cursor: 'pointer',
+                   width: '100%',
+                   mb: 1.2,
+                   color: isDarkMode ? '#ffffff' : '#1a202c',
+                   backgroundColor: currentPage === 'home' ? (isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+                   transition: 'background-color 0.1s ease, color 0.3s ease',
+                   '&:hover': {
+                     backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                     color: isDarkMode ? '#e0e0e0' : '#2d3748',
+                   },
+                 }}
+               >
+                <HomeIcon sx={{ fontSize: 20, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+                <Typography level="body-sm" sx={{ fontWeight: 600, fontSize: '13px', color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }}>
+                  Home
+                </Typography>
+              </Box>
+
+              {/* Customers with submenu */}
+              <Box sx={{ mb: 1.2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.2,
+                    p: 0.75,
+                    borderRadius: 5,
+                    cursor: 'pointer',
+                    width: '100%',
+                    color: isDarkMode ? '#ffffff' : '#1a202c',
+                    transition: 'background-color 0.1s ease, color 0.3s ease',
+                    '&:hover': {
+                      backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                      color: isDarkMode ? '#e0e0e0' : '#2d3748',
+                    },
+                  }}
+                  onClick={() => setCustomersExpanded(!customersExpanded)}
+                >
+                  <PeopleIcon sx={{ fontSize: 20, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+                  <Typography level="body-sm" sx={{ fontWeight: 600, fontSize: '13px', color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }}>
+                    Customers
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, mt: 0.5, ml: 'auto' }}>
+                    {customersExpanded ? (
+                      <ExpandLessIcon sx={{ fontSize: 16, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+                    ) : (
+                      <ExpandMoreIcon sx={{ fontSize: 16, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+                    )}
+                  </Box>
+                </Box>
+
+                {/* Customers submenu */}
+                {customersExpanded && (
+                  <Box 
+                    sx={{ 
+                      pl: 4.5,
+                      mt: 0.5,
+                      overflow: 'hidden',
+                      transition: 'all 0.3s ease',
+                      opacity: 1,
+                    }}
+                  >
+                    <Stack spacing={0.3}>
+                      <Typography
+                        onClick={() => onPageChange('customers')}
+                        level="body-sm"
+                        sx={{
+                          color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          p: 0.4,
+                          borderRadius: 2,
+                          backgroundColor: currentPage === 'customers' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
+                          transition: 'background-color 0.1s ease',
+                          '&:hover': {
+                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                          },
+                        }}
+                      >
+                        All
+                      </Typography>
+                      <Typography
+                        onClick={() => onPageChange('leads')}
+                        level="body-sm"
+                        sx={{
+                          color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          p: 0.4,
+                          borderRadius: 2,
+                          backgroundColor: currentPage === 'leads' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
+                          transition: 'background-color 0.1s ease',
+                          '&:hover': {
+                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                          },
+                        }}
+                      >
+                        Leads
+                      </Typography>
+                      <Typography
+                        onClick={() => onPageChange('booked')}
+                        level="body-sm"
+                        sx={{
+                          color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          p: 0.4,
+                          borderRadius: 2,
+                          backgroundColor: currentPage === 'booked' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
+                          transition: 'background-color 0.1s ease',
+                          '&:hover': {
+                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                          },
+                        }}
+                      >
+                        Booked
+                      </Typography>
+                      <Typography
+                        onClick={() => onPageChange('completed')}
+                        level="body-sm"
+                        sx={{
+                          color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          p: 0.4,
+                          borderRadius: 2,
+                          backgroundColor: currentPage === 'completed' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
+                          transition: 'background-color 0.1s ease',
+                          '&:hover': {
+                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                          },
+                        }}
+                      >
+                        Completed
+                      </Typography>
+                    </Stack>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Calendar */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.2,
+                  p: 0.75,
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                  width: '100%',
+                  color: isDarkMode ? '#ffffff' : '#1a202c',
+                  transition: 'background-color 0.1s ease, color 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                    color: isDarkMode ? '#e0e0e0' : '#2d3748',
+                  },
+                }}
+              >
+                <CalendarTodayIcon sx={{ fontSize: 20, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+                <Typography level="body-sm" sx={{ fontWeight: 600, fontSize: '13px', color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }}>
+                  Calendar
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
 
         {/* Settings button */}
@@ -118,10 +332,11 @@ function Layout({ children, user, onLogout }) {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 2,
-              p: 1,
+              gap: 1.2,
+              p: 0.75,
               borderRadius: 5,
               cursor: 'pointer',
+              width: '100%',
               color: isDarkMode ? '#ffffff' : '#1a202c',
               transition: 'background-color 0.1s ease, color 0.3s ease',
               '&:hover': {
@@ -130,8 +345,8 @@ function Layout({ children, user, onLogout }) {
               },
             }}
           >
-            <SettingsIcon sx={{ fontSize: 24, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
-            <Typography level="body-sm" sx={{ fontWeight: 600, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }}>
+            <SettingsIcon sx={{ fontSize: 20, color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }} />
+            <Typography level="body-sm" sx={{ fontWeight: 600, fontSize: '13px', color: isDarkMode ? 'rgb(210, 210, 210)' : 'rgb(74, 85, 104)' }}>
               Settings
             </Typography>
           </Box>
