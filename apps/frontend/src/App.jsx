@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { CssBaseline, GlobalStyles } from '@mui/joy';
 import Login from './pages/Login';
@@ -28,10 +29,33 @@ const theme = extendTheme({
   },
 });
 
+// Component to handle authenticated routes
+function AuthenticatedApp({ user, onLogout }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handlePageChange = (page) => {
+    navigate(`/${page}`);
+  };
+
+  return (
+    <Layout user={user} onLogout={onLogout} onPageChange={handlePageChange} currentPage={location.pathname.slice(1) || 'home'}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home user={user} />} />
+        <Route path="/customers" element={<Customers user={user} />} />
+        <Route path="/leads" element={<Leads user={user} />} />
+        <Route path="/booked" element={<Booked user={user} />} />
+        <Route path="/completed" element={<Completed user={user} />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Routes>
+    </Layout>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState('home');
 
   // Check if user is logged in on mount
   useEffect(() => {
@@ -45,6 +69,7 @@ function App() {
         console.error('Error parsing user data:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('lastPage');
       }
     }
     setLoading(false);
@@ -55,14 +80,10 @@ function App() {
   };
 
   const handleLogout = () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setTempToken(null);
-      setUser(null);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setTempToken(null);
+    setUser(null);
   };
 
   if (loading) {
@@ -72,17 +93,13 @@ function App() {
   return (
     <CssVarsProvider theme={theme}>
       <CssBaseline />
-      {!user ? (
-        <Login onLogin={handleLogin} />
-      ) : (
-        <Layout user={user} onLogout={handleLogout} onPageChange={handlePageChange} currentPage={currentPage}>
-          {currentPage === 'home' && <Home user={user} />}
-          {currentPage === 'customers' && <Customers user={user} />}
-          {currentPage === 'leads' && <Leads user={user} />}
-          {currentPage === 'booked' && <Booked user={user} />}
-          {currentPage === 'completed' && <Completed user={user} />}
-        </Layout>
-      )}
+      <Router>
+        {!user ? (
+          <Login onLogin={handleLogin} />
+        ) : (
+          <AuthenticatedApp user={user} onLogout={handleLogout} />
+        )}
+      </Router>
     </CssVarsProvider>
   );
 }
