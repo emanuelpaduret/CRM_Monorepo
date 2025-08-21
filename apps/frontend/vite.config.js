@@ -7,6 +7,6 @@ export default defineConfig({
   preview: {
     host: true,
     port: process.env.PORT || 4173,
-    allowedHosts: ['crm-backend-6ngo.onrender.com', 'your-new-host.com']
+    allowedHosts: ['crm-backend-6ngo.onrender.com', 'https://www.mymover.net/']
   }
 })
