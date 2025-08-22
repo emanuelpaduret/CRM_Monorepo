@@ -40,7 +40,7 @@ function Home({ user }) {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {/* Welcome Header */}
       <Box sx={{ mb: 4 }}>
         <Typography 

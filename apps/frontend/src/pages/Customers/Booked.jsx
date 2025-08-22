@@ -13,7 +13,7 @@ function Booked({ user }) {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography 

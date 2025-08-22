@@ -10,12 +10,39 @@ import PeopleIcon from '@mui/icons-material/People';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import Breadcrumb from './Breadcrumb';
 
 // Layout component that provides the main structure for authenticated pages
 function Layout({ children, user, onLogout, onPageChange, currentPage }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [customersExpanded, setCustomersExpanded] = useState(false);
+
+  // Generate breadcrumb items based on current page
+  const getBreadcrumbItems = () => {
+    const breadcrumbMap = {
+      home: [],
+      customers: [],
+      leads: [{ label: 'Customers', path: '/customers' }],
+      booked: [{ label: 'Customers', path: '/customers' }],
+      completed: [{ label: 'Customers', path: '/customers' }],
+    };
+    
+    return breadcrumbMap[currentPage] || [];
+  };
+
+  // Get breadcrumb page title
+  const getBreadcrumbPageTitle = () => {
+    const pageTitles = {
+      home: 'Dashboard',
+      customers: 'All Customers',
+      leads: 'Leads',
+      booked: 'Booked',
+      completed: 'Completed',
+    };
+    
+    return pageTitles[currentPage] || currentPage;
+  };
 
   // Load theme preference from localStorage on mount
   useEffect(() => {
@@ -231,7 +258,7 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
                           fontWeight: 600,
                           fontSize: '12px',
                           cursor: 'pointer',
-                          p: 0.4,
+                          p: 0.8,
                           borderRadius: 2,
                           backgroundColor: currentPage === 'customers' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
                           transition: 'background-color 0.1s ease',
@@ -250,7 +277,7 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
                           fontWeight: 600,
                           fontSize: '12px',
                           cursor: 'pointer',
-                          p: 0.4,
+                          p: 0.8,
                           borderRadius: 2,
                           backgroundColor: currentPage === 'leads' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
                           transition: 'background-color 0.1s ease',
@@ -269,7 +296,7 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
                           fontWeight: 600,
                           fontSize: '12px',
                           cursor: 'pointer',
-                          p: 0.4,
+                          p: 0.8,
                           borderRadius: 2,
                           backgroundColor: currentPage === 'booked' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
                           transition: 'background-color 0.1s ease',
@@ -288,7 +315,7 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
                           fontWeight: 600,
                           fontSize: '12px',
                           cursor: 'pointer',
-                          p: 0.4,
+                          p: 0.8,
                           borderRadius: 2,
                           backgroundColor: currentPage === 'completed' ? (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)') : 'transparent',
                           transition: 'background-color 0.1s ease',
@@ -436,6 +463,12 @@ function Layout({ children, user, onLogout, onPageChange, currentPage }) {
              overflow: 'auto',
            }}
          >
+           {/* Breadcrumb navigation */}
+           <Breadcrumb 
+             items={getBreadcrumbItems()}
+             currentPage={getBreadcrumbPageTitle()}
+             isDarkMode={isDarkMode}
+           />
            {children}
          </Box>
        </Box>
