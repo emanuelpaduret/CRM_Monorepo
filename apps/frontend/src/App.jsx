@@ -8,7 +8,7 @@ import Customers from './pages/Customers/Customers';
 import Leads from './pages/Customers/Leads';
 import Booked from './pages/Customers/Booked';
 import Completed from './pages/Customers/Completed';
-import Layout from './components/Layout/Layout';
+import Layout from './components/Layout/sidebar';
 import { setTempToken } from './services/api';
 
 // Create Joy UI theme

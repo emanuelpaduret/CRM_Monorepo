@@ -1,16 +1,31 @@
-import { Box, Typography, Card, CardContent, Grid, Stack, Button, Chip, Input, IconButton } from '@mui/joy';
-import { useState, useEffect } from 'react';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import AddIcon from '@mui/icons-material/Add';
-import PeopleIcon from '@mui/icons-material/People';
-import PhoneIcon from '@mui/icons-material/Phone';
-import EmailIcon from '@mui/icons-material/Email';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Box, Typography } from '@mui/joy';
+import { useState, useEffect, useMemo } from 'react';
+import DataGrid from '../../components/Layout/grid';
+import { submissions } from '../../services/api';
+
+// Format ISO date/time to EST/EDT (America/New_York) as YYYY-MM-DD HH:mm
+function formatToEST(isoString) {
+  if (!isoString) return 'Not specified';
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return isoString;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+  const get = (type) => parts.find(p => p.type === type)?.value || '';
+  return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`;
+}
 
 function Customers({ user }) {
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Load theme preference from localStorage
   useEffect(() => {
@@ -20,65 +35,150 @@ function Customers({ user }) {
     }
   }, []);
 
-  // Mock data - replace with real API calls later
-  const customers = [
-    { 
-      id: 1, 
-      name: 'John Smith', 
-      phone: '+1 (555) 123-4567', 
-      email: 'john.smith@email.com',
-      status: 'active',
-      totalMoves: 2,
-      lastMove: '2024-01-15',
-      totalSpent: '$2,400'
-    },
-    { 
-      id: 2, 
-      name: 'Sarah Johnson', 
-      phone: '+1 (555) 987-6543', 
-      email: 'sarah.j@email.com',
-      status: 'active',
-      totalMoves: 1,
-      lastMove: '2024-01-20',
-      totalSpent: '$1,800'
-    },
-    { 
-      id: 3, 
-      name: 'Mike Davis', 
-      phone: '+1 (555) 456-7890', 
-      email: 'mike.davis@email.com',
-      status: 'inactive',
-      totalMoves: 3,
-      lastMove: '2023-12-10',
-      totalSpent: '$3,600'
-    },
-    { 
-      id: 4, 
-      name: 'Emily Wilson', 
-      phone: '+1 (555) 321-6540', 
-      email: 'emily.w@email.com',
-      status: 'active',
-      totalMoves: 1,
-      lastMove: '2024-01-25',
-      totalSpent: '$2,100'
-    },
-    { 
-      id: 5, 
-      name: 'Robert Brown', 
-      phone: '+1 (555) 789-0123', 
-      email: 'robert.b@email.com',
-      status: 'active',
-      totalMoves: 2,
-      lastMove: '2024-01-18',
-      totalSpent: '$2,800'
-    },
-  ];
+  // Fetch customers from database
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await submissions.getAll({
+          limit: 1000,
+          sort: '-createdAt'
+        });
+        
+        if (response.data.success) {
+          const mappedCustomers = response.data.data.submissions.map(submission => ({
+            id: submission._id,
+            dateOfFirstContact: submission.dateOfFirstContact || 'Not specified',
+            name: submission.name || 'Unknown',
+            phone: submission.phone || 'N/A',
+            email: submission.email || 'N/A',
+            source: submission.source || 'Unknown',
+            status: submission.status || 'new',
+            dateOfMove: submission.movingDetails?.movingDate || 'Not specified',
+            address1: submission.movingDetails?.firstAddress || 'Not specified',
+            address2: submission.movingDetails?.secondAddress || ''
+          }));
+          
+          setCustomers(mappedCustomers);
+        } else {
+          setError('Failed to fetch customers');
+        }
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+        setError(err.response?.data?.message || 'Failed to fetch customers');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
-  );
+    fetchCustomers();
+  }, []);
+
+  // Custom cell renderer for status
+  const StatusCellRenderer = (props) => {
+    const status = props.value;
+    const color = status === 'active' || status === 'completed' ? 'success' : 
+                 status === 'in_progress' ? 'warning' : 'neutral';
+    
+    return (
+      <span className={`ag-cell-chip ag-cell-chip-${color}`}>
+        {status}
+      </span>
+    );
+  };
+
+  // Column definitions
+  const columnDefs = useMemo(() => [
+    {
+      field: 'dateOfFirstContact',
+      headerName: 'Date of First Contact',
+      sortable: true,
+      filter: true,
+      width: 220,
+      valueFormatter: (params) => formatToEST(params.value)
+    },
+    {
+      field: 'name',
+      headerName: 'Name',
+      sortable: true,
+      filter: true,
+      width: 200,
+      cellStyle: { fontWeight: 'bold' }
+    },
+    {
+      field: 'phone',
+      headerName: 'Phone',
+      sortable: true,
+      filter: true,
+      width: 150
+    },
+    {
+      field: 'email',
+      headerName: 'Email',
+      sortable: true,
+      filter: true,
+      width: 250
+    },
+    {
+      field: 'source',
+      headerName: 'Source',
+      sortable: true,
+      filter: true,
+      width: 120
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      sortable: true,
+      filter: true,
+      width: 120,
+      cellRenderer: StatusCellRenderer
+    },
+    {
+      field: 'dateOfMove',
+      headerName: 'Date of Move',
+      sortable: true,
+      filter: true,
+      width: 150
+    },
+    {
+      field: 'address1',
+      headerName: 'Address 1',
+      sortable: true,
+      filter: true,
+      width: 200
+    },
+    {
+      field: 'address2',
+      headerName: 'Address 2',
+      sortable: true,
+      filter: true,
+      width: 150
+    }
+  ], []);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography level="h4">Loading customers...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography level="h4" sx={{ color: '#ef4444', mb: 2 }}>
+          Error loading customers
+        </Typography>
+        <Typography level="body-lg">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -92,7 +192,7 @@ function Customers({ user }) {
             mb: 1
           }}
         >
-          Customers
+          All Customers
         </Typography>
         <Typography 
           level="body-lg" 
@@ -100,284 +200,16 @@ function Customers({ user }) {
             color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' 
           }}
         >
-          Manage your customer database and view customer history.
+          View and manage all your customer data and submissions.
         </Typography>
       </Box>
-
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid xs={12} sm={6} md={3}>
-          <Card sx={{ 
-            backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-            borderColor: isDarkMode ? '#333' : '#e2e8f0',
-            transition: 'all 0.3s ease'
-          }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderRadius: '50%', 
-                  backgroundColor: '#3b82f6',
-                  color: 'white'
-                }}>
-                  <PeopleIcon sx={{ fontSize: 20 }} />
-                </Box>
-                <Box>
-                  <Typography level="h3" sx={{ color: isDarkMode ? '#ffffff' : '#1a202c' }}>
-                    {customers.length}
-                  </Typography>
-                  <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                    Total Customers
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card sx={{ 
-            backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-            borderColor: isDarkMode ? '#333' : '#e2e8f0',
-            transition: 'all 0.3s ease'
-          }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderRadius: '50%', 
-                  backgroundColor: '#10b981',
-                  color: 'white'
-                }}>
-                  <PeopleIcon sx={{ fontSize: 20 }} />
-                </Box>
-                <Box>
-                  <Typography level="h3" sx={{ color: isDarkMode ? '#ffffff' : '#1a202c' }}>
-                    {customers.filter(c => c.status === 'active').length}
-                  </Typography>
-                  <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                    Active Customers
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card sx={{ 
-            backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-            borderColor: isDarkMode ? '#333' : '#e2e8f0',
-            transition: 'all 0.3s ease'
-          }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderRadius: '50%', 
-                  backgroundColor: '#f59e0b',
-                  color: 'white'
-                }}>
-                  <PeopleIcon sx={{ fontSize: 20 }} />
-                </Box>
-                <Box>
-                  <Typography level="h3" sx={{ color: isDarkMode ? '#ffffff' : '#1a202c' }}>
-                    {customers.reduce((sum, c) => sum + c.totalMoves, 0)}
-                  </Typography>
-                  <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                    Total Moves
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card sx={{ 
-            backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-            borderColor: isDarkMode ? '#333' : '#e2e8f0',
-            transition: 'all 0.3s ease'
-          }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderRadius: '50%', 
-                  backgroundColor: '#8b5cf6',
-                  color: 'white'
-                }}>
-                  <PeopleIcon sx={{ fontSize: 20 }} />
-                </Box>
-                <Box>
-                  <Typography level="h3" sx={{ color: isDarkMode ? '#ffffff' : '#1a202c' }}>
-                    {customers.reduce((sum, c) => sum + parseInt(c.totalSpent.replace('$', '').replace(',', '')), 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                  </Typography>
-                  <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                    Total Revenue
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Search and Actions */}
-      <Box sx={{ mb: 3 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ flex: 1, maxWidth: 400 }}>
-            <Input
-              placeholder="Search customers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              startDecorator={<SearchIcon />}
-              sx={{
-                backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(249, 250, 251)',
-                borderColor: isDarkMode ? '#333' : '#d1d5db',
-                color: isDarkMode ? '#e5e7eb' : '#1f2937',
-                '&:hover': {
-                  borderColor: isDarkMode ? '#6b7280' : '#9ca3af',
-                },
-                '&:focus-within': {
-                  borderColor: isDarkMode ? '#3b82f6' : '#2563eb',
-                },
-              }}
-            />
-          </Box>
-          <Button
-            startDecorator={<FilterListIcon />}
-            variant="outlined"
-            sx={{
-              borderColor: isDarkMode ? '#333' : '#e2e8f0',
-              color: isDarkMode ? '#ffffff' : '#1a202c',
-              '&:hover': { 
-                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                borderColor: isDarkMode ? '#666' : '#cbd5e1'
-              }
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            startDecorator={<AddIcon />}
-            sx={{
-              backgroundColor: '#3b82f6',
-              '&:hover': { backgroundColor: '#2563eb' }
-            }}
-          >
-            Add Customer
-          </Button>
-        </Stack>
-      </Box>
-
-      {/* Customers List */}
-      <Card sx={{ 
-        backgroundColor: isDarkMode ? 'rgb(15, 15, 15)' : 'rgb(255, 255, 255)',
-        borderColor: isDarkMode ? '#333' : '#e2e8f0',
-        transition: 'all 0.3s ease'
-      }}>
-        <CardContent>
-          <Typography 
-            level="h4" 
-            sx={{ 
-              color: isDarkMode ? '#ffffff' : '#1a202c',
-              fontWeight: 'bold',
-              mb: 3
-            }}
-          >
-            Customer List ({filteredCustomers.length})
-          </Typography>
-          
-          <Stack spacing={2}>
-            {filteredCustomers.map((customer) => (
-              <Box 
-                key={customer.id}
-                sx={{ 
-                  p: 3, 
-                  borderRadius: 2, 
-                  backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
-                  border: `1px solid ${isDarkMode ? '#333' : '#e2e8f0'}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
-                    cursor: 'pointer'
-                  }
-                }}
-              >
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box sx={{ flex: 1 }}>
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-                      <Typography 
-                        level="body-lg" 
-                        sx={{ 
-                          fontWeight: 'bold',
-                          color: isDarkMode ? '#ffffff' : '#1a202c'
-                        }}
-                      >
-                        {customer.name}
-                      </Typography>
-                      <Chip
-                        size="sm"
-                        variant="soft"
-                        color={customer.status === 'active' ? 'success' : 'neutral'}
-                      >
-                        {customer.status}
-                      </Chip>
-                    </Stack>
-                    
-                    <Grid container spacing={3}>
-                      <Grid xs={12} sm={6} md={3}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <PhoneIcon sx={{ fontSize: 16, color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }} />
-                          <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                            {customer.phone}
-                          </Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid xs={12} sm={6} md={3}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <EmailIcon sx={{ fontSize: 16, color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }} />
-                          <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                            {customer.email}
-                          </Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid xs={12} sm={6} md={2}>
-                        <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                          <strong>Moves:</strong> {customer.totalMoves}
-                        </Typography>
-                      </Grid>
-                      <Grid xs={12} sm={6} md={2}>
-                        <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                          <strong>Spent:</strong> {customer.totalSpent}
-                        </Typography>
-                      </Grid>
-                      <Grid xs={12} sm={6} md={2}>
-                        <Typography level="body-sm" sx={{ color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)' }}>
-                          <strong>Last:</strong> {customer.lastMove}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                  
-                  <IconButton
-                    size="sm"
-                    sx={{
-                      color: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)',
-                      '&:hover': {
-                        backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                      }
-                    }}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Stack>
-              </Box>
-            ))}
-          </Stack>
-        </CardContent>
-      </Card>
+      
+      <DataGrid 
+        columnDefs={columnDefs} 
+        rowData={customers} 
+        height={700}
+        isDarkMode={isDarkMode}
+      />
     </Box>
   );
 }
